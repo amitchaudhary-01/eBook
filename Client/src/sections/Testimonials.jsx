@@ -2,8 +2,8 @@ import React from 'react';
 
 export default function Testimonials() {
   const feedback = [
-    { name: 'Sarah J.', sub: 'Entrepreneur', msg: 'This catalog changed how I consume actionable information. The UI formatting makes checking summaries clean.' },
-    { name: 'Michael R.', sub: 'Student', msg: 'Affordable ebook packages that render beautifully on mobile layout screens. Highly recommend the tech section.' },
+    { name: 'Amit K.', sub: 'Football Fan', msg: 'This catalog changed how I consume actionable information. The UI formatting makes checking summaries clean.' },
+    { name: 'AAMIT .', sub: 'Student', msg: 'Affordable ebook packages that render beautifully on mobile layout screens. Highly recommend the tech section.' },
     { name: 'Emily K.', sub: 'Marketing Mgr', msg: 'The newsletter book notifications consistently hit right on target. Truly amazing customer service.' }
   ];
 
