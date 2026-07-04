@@ -13,6 +13,8 @@ import Pages_Testimonials from './pages/Pages_Testimonials';
 import Pages_Pricing from './pages/Pages_Pricing';
 import Pages_Blog from './pages/Pages_Blog';
 import ScreenLoading from './components/Common/ScreenLoading';
+import Pages_SignUp from './pages/Pages_SignUp';
+import Pages_SignIn from './pages/Pages_SignIn';
 
 export default function App() {
 
@@ -42,6 +44,8 @@ const [loading, setLoading] = useState(true);
         <Route path='/Testimonial' element={<Pages_Testimonials/>}/>
         <Route path='/price' element={<Pages_Pricing/>}/>
         <Route path='/blog' element={<Pages_Blog/>}/>
+        <Route path='/signup' element={<Pages_SignUp/>}/>
+        <Route path='/signin' element={<Pages_SignIn/>}/>
       </Routes>
       <Footer />
     </Router>

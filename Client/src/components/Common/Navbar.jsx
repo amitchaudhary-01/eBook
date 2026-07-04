@@ -10,7 +10,7 @@ export default function Navbar() {
       <div className="bg-slate-200 text-gray-500 text-xs px-4 md:px-24 py-2 flex flex-col sm:flex-row justify-between items-center gap-2 border-b border-gray-100 text-center sm:text-left">
         <div className="flex gap-4 md:gap-6">
           <span>📧 eBook@gmail.com</span>
-          <span>📞 +977 9800000000</span>
+          <span>📞 +977 9821005569</span>
         </div>
         <div className="flex flex-wrap justify-center sm:justify-end gap-4">
           <span>Sun - Fri : 9am - 8pm</span>
@@ -36,6 +36,8 @@ export default function Navbar() {
           <Link to="/testimonial" className="hover:text-indigo-600 transition">Testimonials</Link>
           <Link to="/price" className="hover:text-indigo-600 transition">Pricing</Link>
           <Link to="/blog" className="hover:text-indigo-600 transition">Blog</Link>
+          <Link to='/signup' className='hover:text-indigo-600 transition'>SignUp</Link>
+          <Link to='signin' className='hover:text-indigo-600 transition'>SignIn</Link>
         </div>
 
         {/* Action Controls & Mobile Trigger */}
@@ -87,6 +89,7 @@ export default function Navbar() {
             <Link to="/testimonial" onClick={() => setIsOpen(false)} className="hover:text-indigo-600 py-1 transition">Testimonials</Link>
             <Link to="/price" onClick={() => setIsOpen(false)} className="hover:text-indigo-600 py-1 transition">Pricing</Link>
             <Link to="/blog" onClick={() => setIsOpen(false)} className="hover:text-indigo-600 py-1 transition">Blog</Link>
+            
             
             <button onClick={() => setIsOpen(false)} className="w-full bg-indigo-600 text-white mt-2 py-3 rounded-xl font-medium hover:bg-indigo-700 transition sm:hidden">
               Explore

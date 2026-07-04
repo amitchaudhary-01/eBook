@@ -8,14 +8,14 @@ const Pages_Home = () => {
   useEffect(() => {
     let isMounted = true;
 
-    fetch('http://localhost:5000/api/books?trending=true')
+    fetch('http://localhost:5173/api/books?trending=true')
       .then(res => res.json())
       .then(data => {
         if (isMounted) setTrendingBooks(data);
       })
       .catch(err => console.error("Error loading trending elements:", err));
 
-    fetch('http://localhost:5000/api/books?bestseller=true')
+    fetch('http://localhost:5173/api/books?bestseller=true')
       .then(res => res.json())
       .then(data => {
         if (isMounted) setBestSellers(data);
