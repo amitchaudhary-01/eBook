@@ -9,12 +9,17 @@ export default function Navbar() {
       {/* Micro Info Bar */}
       <div className="bg-slate-200 text-gray-500 text-xs px-4 md:px-24 py-2 flex flex-col sm:flex-row justify-between items-center gap-2 border-b border-gray-100 text-center sm:text-left">
         <div className="flex gap-4 md:gap-6">
-          <span>📧 eBook@gmail.com</span>
-          <span>📞 +977 9821005569</span>
+          {/* <span>📧 eBook@gmail.com</span> */}
+          <Link to="mailto:eBook@gmail.com" className='hover:text-indigo-600 transition flex items-center gap-1'>📧 eBook@gmail.com</Link>
+
+
+          {/* <span>📞 +977 9821005569</span> */}
+          <Link to="phoneto:+977 9821005569" className='hover:text-indigo-600 transition flex items-center gap-1'>📞 +977 9821005569</Link>
         </div>
         <div className="flex flex-wrap justify-center sm:justify-end gap-4">
           <span>Sun - Fri : 9am - 8pm</span>
-          <span>📍 Butwal, Rupandehi, Nepal</span>
+          {/* <span>📍 Butwal, Rupandehi, Nepal</span> */}
+          <Link to="mapto:Butwal,Rupandehi,Nepal" className='hover:text-indigo-600 transition flex items-center gap-1'>📍Butwal, Rupandehi, Nepal</Link>
         </div>
       </div>
 

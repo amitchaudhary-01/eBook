@@ -15,6 +15,7 @@ import Pages_Blog from './pages/Pages_Blog';
 import ScreenLoading from './components/Common/ScreenLoading';
 import Pages_SignUp from './pages/Pages_SignUp';
 import Pages_SignIn from './pages/Pages_SignIn';
+import Newsletter from './sections/Newsletter';
 
 export default function App() {
 
@@ -46,7 +47,9 @@ const [loading, setLoading] = useState(true);
         <Route path='/blog' element={<Pages_Blog/>}/>
         <Route path='/signup' element={<Pages_SignUp/>}/>
         <Route path='/signin' element={<Pages_SignIn/>}/>
+
       </Routes>
+     
       <Footer />
     </Router>
   );

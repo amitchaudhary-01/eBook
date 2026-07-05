@@ -40,7 +40,7 @@ const Pages_Pricing = () => {
                 ))}
               </ul>
             </div>
-            <button className="w-full mt-8 bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-100 transition text-sm">
+            <button className="w-full mt-8 bg-blue-300 text-gray-700 font-semibold py-3 rounded-xl hover:bg-blue-400 transition text-sm">
               Buy Single Tier
             </button>
           </div>
@@ -88,7 +88,7 @@ const Pages_Pricing = () => {
                 ))}
               </ul>
             </div>
-            <button className="w-full mt-8 bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-100 transition text-sm">
+            <button className="w-full mt-8 bg-blue-300 text-gray-700 font-semibold py-3 rounded-xl hover:bg-blue-400 transition text-sm">
               Purchase Lifetime
             </button>
           </div>
