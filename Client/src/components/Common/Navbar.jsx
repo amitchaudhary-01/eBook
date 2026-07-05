@@ -37,7 +37,7 @@ export default function Navbar() {
           <Link to="/price" className="hover:text-indigo-600 transition">Pricing</Link>
           <Link to="/blog" className="hover:text-indigo-600 transition">Blog</Link>
           <Link to='/signup' className='hover:text-indigo-600 transition'>SignUp</Link>
-          <Link to='signin' className='hover:text-indigo-600 transition'>SignIn</Link>
+          <Link to='/signin' className='hover:text-indigo-600 transition'>SignIn</Link>
         </div>
 
         {/* Action Controls & Mobile Trigger */}

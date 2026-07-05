@@ -1,8 +1,12 @@
 import React from 'react';
-import { useForm } from 'react-hook-form'; // Fixed import source
-import { Link, Navigate } from 'react-router-dom';
+import axios from 'axios';
+import { toast } from 'react-toastify'; // Fixed import format
+import { useForm } from 'react-hook-form'; 
+import { Link, useNavigate } from 'react-router-dom'; // Swapped Navigate for useNavigate
 
 const Pages_SignUp = () => {
+  const navigate = useNavigate(); // Initialize programmatic routing hook
+
   // Initialize react-hook-form
   const {
     register,
@@ -10,11 +14,22 @@ const Pages_SignUp = () => {
     formState: { errors },
   } = useForm();
 
-  // Clean submission function managed directly by hook-form handler
-  const onSubmit = (data) => {
-    console.log('Validated Form Data:', data);
-    // Add your signup API logic here
-    Navigate('/signin')
+  // Handle network request securely with async/await
+  const onSubmit = async (data) => {
+    try {
+      // console.log('Sending Form Data to API:', data);
+      
+      const response = await axios.post("http://localhost:3000/api/v1/user/create", data);
+      
+      if (response.status === 200 || response.status === 201) {
+        toast.success("User signed up successfully!");
+        navigate('/signin'); // Correctly redirecting user via hook
+      }
+    } catch (error) {
+      console.error('Signup error context:', error);
+      const backendErrorMessage = error.response?.data?.message || "Something went wrong. Please try again.";
+      toast.error(backendErrorMessage);
+    }
   };
 
   return (
@@ -57,7 +72,6 @@ const Pages_SignUp = () => {
             <p className="text-gray-500 text-sm">Get unlimited access to insights and learning tools.</p>
           </div>
 
-          {/* Wrap your submit handler through react-hook-form middleware */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             
             {/* Full Name Input */}
@@ -65,11 +79,11 @@ const Pages_SignUp = () => {
               <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Full Name</label>
               <input
                 type="text"
-                placeholder="Amit Chaudhary"
+                placeholder="Enter Full Name"
                 className={`w-full px-4 py-3 bg-gray-50 border rounded-xl text-sm focus:outline-none focus:bg-white transition ${
                   errors.fullName ? 'border-rose-400 focus:border-rose-500' : 'border-gray-200 focus:border-indigo-600'
                 }`}
-                {...register('fullName', { required: 'Full name is required' })}
+                {...register('fullname', { required: 'Full name is required' })}
               />
               {errors.fullName && (
                 <p className="text-xs text-rose-500 font-semibold mt-1.5 pl-1">{errors.fullName.message}</p>

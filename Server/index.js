@@ -3,6 +3,9 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import connectDB from './config/db.js'
 
+import CreateUser from './routes/user.route.js'
+
+
 // Load environment variables from .env file
 dotenv.config()
 
@@ -17,12 +20,18 @@ app.use(express.json())
 
 ///////connecting client through cors
 app.use(cors({
-    origin:" http://localhost:5173/"
+    origin:" http://localhost:5173"
 }))
 
 app.get('/', (req, res) => {
   res.send('API is running and connected to DB!')
 })
+
+
+app.use('/api/v1/user',CreateUser)
+
+
+
 
 ///////start server///
 app.listen(3000, () => {
