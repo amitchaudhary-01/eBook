@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Pages_SignIn = () => {
+  const navigate = useNavigate();
+  const [submitError, setSubmitError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Initialize react-hook-form
   const {
     register,
@@ -17,9 +21,35 @@ const Pages_SignIn = () => {
   });
 
   // Submission handler receiving validated data
-  const onSubmit = (data) => {
-    console.log('Validated Sign In Data submitted:', data);
-    // Add your login backend API code here
+  const onSubmit = async (data) => {
+    setSubmitError('');
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('http://localhost:3000/api/v1/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Sign in failed');
+      }
+
+      navigate('/');
+    } catch (error) {
+      setSubmitError(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -102,12 +132,17 @@ const Pages_SignIn = () => {
             </a>
           </div>
 
+          {submitError && (
+            <p className="text-sm text-rose-500 font-semibold">{submitError}</p>
+          )}
+
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white font-medium py-3 rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-600/20 mt-4"
+            disabled={isSubmitting}
+            className="w-full bg-indigo-600 text-white font-medium py-3 rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-600/20 mt-4 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Sign In
+            {isSubmitting ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 

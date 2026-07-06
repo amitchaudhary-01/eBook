@@ -3,7 +3,10 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import connectDB from './config/db.js'
 
-import CreateUser from './routes/user.route.js'
+import CreateClient from './routes/client.route.js'
+
+import SignIn from './routes/client.route.js'
+
 
 
 // Load environment variables from .env file
@@ -20,7 +23,8 @@ app.use(express.json())
 
 ///////connecting client through cors
 app.use(cors({
-    origin:" http://localhost:5173"
+    origin: "http://localhost:5173",
+    credentials: true
 }))
 
 app.get('/', (req, res) => {
@@ -28,7 +32,9 @@ app.get('/', (req, res) => {
 })
 
 
-app.use('/api/v1/user',CreateUser)
+app.use('/api/v1/client',CreateClient)
+
+app.use('/api/v1/auth',SignIn)
 
 
 

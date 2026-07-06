@@ -19,7 +19,7 @@ const Pages_SignUp = () => {
     try {
       // console.log('Sending Form Data to API:', data);
       
-      const response = await axios.post("http://localhost:3000/api/v1/user/create", data);
+      const response = await axios.post("http://localhost:3000/api/v1/client/create", data);
       
       if (response.status === 200 || response.status === 201) {
         toast.success("User signed up successfully!");
