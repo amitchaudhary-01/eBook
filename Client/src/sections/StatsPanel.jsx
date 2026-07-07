@@ -6,7 +6,7 @@ export default function StatsPanel() {
       <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-900/40 rounded-full blur-3xl z-0" />
       
       <div className="max-w-md z-10">
-        <h3 className="text-3xl font-extrabold mb-4 leading-tight">Why Readers Choose Marlin Books</h3>
+        <h3 className="text-3xl font-extrabold mb-4 leading-tight">Why Readers Choose eBooks</h3>
         <p className="text-indigo-200 text-sm leading-relaxed mb-8">
           We provide more than just books. We deliver knowledge, inspiration, and transformation right to your digital screen.
         </p>
@@ -40,7 +40,7 @@ export default function StatsPanel() {
           <div className="w-14 h-14 bg-white text-emerald-900 rounded-full flex items-center justify-center mx-auto shadow-lg cursor-pointer hover:scale-110 transition duration-300 mb-8 pl-1 text-lg">
             ▶
           </div>
-          <p className="text-xs text-emerald-200/80 font-medium">Eckhart Tolle</p>
+          <p className="text-xs text-emerald-200/80 font-medium">Amit Chaudhary</p>
         </div>
       </div>
     </section>

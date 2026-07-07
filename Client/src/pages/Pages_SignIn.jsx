@@ -1,6 +1,9 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
+import {toast} from 'react-toastify'
+
 
 const Pages_SignIn = () => {
   const navigate = useNavigate();
@@ -21,36 +24,56 @@ const Pages_SignIn = () => {
   });
 
   // Submission handler receiving validated data
-  const onSubmit = async (data) => {
-    setSubmitError('');
-    setIsSubmitting(true);
+ const onSubmit = async (data) => {
+  setSubmitError("");
+  setIsSubmitting(true);
 
-    try {
-      const response = await fetch('http://localhost:3000/api/v1/auth/signin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
-      });
+  try {
+    const res = await axios.post("http://localhost:3000/api/v1/auth/signin",data,{withCredentials: true,} );
 
-      const result = await response.json();
+    if (res.status === 201) {
+      toast.success("Client Logged In Successfully")
 
-      if (!response.ok) {
-        throw new Error(result.message || 'Sign in failed');
-      }
-
-      navigate('/');
-    } catch (error) {
-      setSubmitError(error.message);
-    } finally {
-      setIsSubmitting(false);
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
     }
-  };
+  } catch (error) {
+    const message = error.response?.data?.message || "Invalid email or password";
+
+    setSubmitError(message);
+    toast.error(message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+  //   try {
+  //     const response = await fetch('http://localhost:3000/api/v1/auth/signin', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       credentials: 'include',
+  //       body: JSON.stringify({
+  //         email: data.email,
+  //         password: data.password,
+  //       }),
+  //     });
+
+  //     const result = await response.json();
+
+  //     if (!response.ok) {
+  //       throw new Error(result.message || 'Sign in failed');
+  //     }
+  //     navigate('/');
+  //   } catch (error) {
+  //     setSubmitError(error.message);
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+
 
   return (
     <div className="bg-white min-h-screen font-sans text-gray-800 antialiased flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-100 via-white to-indigo-100">

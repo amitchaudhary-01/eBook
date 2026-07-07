@@ -130,7 +130,7 @@ const Pages_Home = () => {
             <h4 className="text-xl font-bold mb-1">The Power</h4>
             <p className="text-xl font-bold mb-6">of Now</p>
             <div className="w-12 h-12 bg-white text-emerald-800 rounded-full flex items-center justify-center mx-auto shadow-md cursor-pointer hover:scale-105 transition mb-6">▶</div>
-            <p className="text-xs text-emerald-200 italic">Eckhart Tolle</p>
+            <p className="text-xs text-emerald-200 italic">Amit</p>
           </div>
         </div>
       </section>

@@ -17,6 +17,9 @@ import Pages_SignUp from './pages/Pages_SignUp';
 import Pages_SignIn from './pages/Pages_SignIn';
 import Newsletter from './sections/Newsletter';
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function App() {
 
 const [loading, setLoading] = useState(true);
@@ -49,7 +52,11 @@ const [loading, setLoading] = useState(true);
         <Route path='/signin' element={<Pages_SignIn/>}/>
 
       </Routes>
-     
+     <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        theme="light"
+      />
       <Footer />
     </Router>
   );

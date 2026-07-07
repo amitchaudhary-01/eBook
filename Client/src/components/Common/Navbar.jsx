@@ -33,7 +33,7 @@ export default function Navbar() {
 
         {/* Desktop Links (Hidden on mobile) */}
         <div className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-gray-600">
-          <Link to="/" className="text-indigo-600 border-b-2 border-indigo-600 pb-1">Home</Link>
+          <Link to="/home" className="text-indigo-600 border-b-2 border-indigo-600 pb-1">Home</Link>
           <Link to="/aboutus" className="hover:text-indigo-600 transition">About Us</Link>
           <Link to="/book" className="hover:text-indigo-600 transition">Books</Link>
           <Link to="/sale" className="hover:text-indigo-600 transition">For Sale</Link>
@@ -41,7 +41,7 @@ export default function Navbar() {
           <Link to="/testimonial" className="hover:text-indigo-600 transition">Testimonials</Link>
           <Link to="/price" className="hover:text-indigo-600 transition">Pricing</Link>
           <Link to="/blog" className="hover:text-indigo-600 transition">Blog</Link>
-          <Link to='/signup' className='hover:text-indigo-600 transition'>SignUp</Link>
+          <Link to='/' className='hover:text-indigo-600 transition'>SignUp</Link>
           <Link to='/signin' className='hover:text-indigo-600 transition'>SignIn</Link>
         </div>
 

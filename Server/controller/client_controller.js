@@ -52,7 +52,7 @@ export const signIn = async (req, res) => {
                 message: "Email and Password required"
             });
         }
-
+////////////////find if userexist/////////////
         const clientExist = await Client.findOne({ email });
 
         if (!clientExist) {
@@ -60,7 +60,7 @@ export const signIn = async (req, res) => {
                 message: "Email doesn't Exist"
             });
         }
-
+////////////compare password/////////////
         const checkPassword = await bcrypt.compare(password, clientExist.password);
 
         if (!checkPassword) {
@@ -68,19 +68,16 @@ export const signIn = async (req, res) => {
                 message: "Invalid email or password"
             });
         }
-
-        const token = jwt.sign(
-            { id: clientExist._id },
-            process.env.JWT_SECRET_KEY || 'book-secret-key',
-            { expiresIn: '1h' }
+///////////create JWT///////////////
+        const token = jwt.sign({ id: clientExist._id },process.env.JWT_SECRET_KEY || 'book-secret-key',{ expiresIn: '1h' }
         );
-
+////////////create cookie////////
         res.cookie('client', token, {
             httpOnly: true,
             sameSite: 'lax',
             maxAge: 24 * 60 * 60 * 1000
         });
-
+//////////response/////////
         return res.status(201).json({
             message: "Client LoggedIn Successfully",
             data: token
