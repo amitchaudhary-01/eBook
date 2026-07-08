@@ -62,7 +62,7 @@ const Footer = () => {
         
         {/* Brand Section */}
         <div className="col-span-2">
-          <h3 className="text-white text-base font-black tracking-wider mb-4">eBook</h3>
+          <h3 className="text-white text-red-500 text-base font-black tracking-wider mb-4">eBook</h3>
           <p className="text-gray-400 leading-relaxed max-w-xs mb-4 text-[11px] opacity-80">
             Your trusted digital resource catalog library built for endless learning and permanent professional growth.
           </p>

@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
-import { toast, ToastContainer } from 'react-toastify'; 
-import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useForm } from 'react-hook-form'; 
 import { Link, useNavigate } from 'react-router-dom'; // Swapped Navigate for useNavigate
 
@@ -22,10 +22,12 @@ const Pages_SignUp = () => {
       
       const response = await axios.post("http://localhost:3000/api/v1/client/create", data);
       
-      if (response.status === 200 || response.status === 201) {
+     
         toast.success("User signed up successfully!");
-        navigate('/signin'); // Correctly redirecting user via hook
-      }
+        setTimeout(()=>{
+          {navigate('/signin')}
+        },1200) // Correctly redirecting user via hook
+     
     } catch (error) {
       console.error('Signup error context:', error);
       const backendErrorMessage = error.response?.data?.message || "Something went wrong. Please try again.";
@@ -36,7 +38,7 @@ const Pages_SignUp = () => {
   return (
     <div className="bg-white min-h-screen font-sans text-gray-800 antialiased flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-100 via-white to-indigo-100">
 
-      <ToastContainer/>
+      <ToastContainer position='top-right'/>
       <div className="max-w-4xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-gray-100">
         
         {/* LEFT SIDE: BRANDING/MARKETING SPLASH */}

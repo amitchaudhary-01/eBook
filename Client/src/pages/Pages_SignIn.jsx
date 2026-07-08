@@ -2,7 +2,8 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import {toast} from 'react-toastify'
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const Pages_SignIn = () => {
@@ -29,15 +30,13 @@ const Pages_SignIn = () => {
   setIsSubmitting(true);
 
   try {
-    const res = await axios.post("http://localhost:3000/api/v1/auth/signin",data,{withCredentials: true,} );
+    const res = await axios.post("http://localhost:3000/api/v1/client/signin",data,{withCredentials: true,} );
 
-    if (res.status === 201) {
       toast.success("Client Logged In Successfully")
-
       setTimeout(() => {
-        navigate("/");
-      }, 1500);
-    }
+    navigate('/');
+  }, 1200);
+    
   } catch (error) {
     const message = error.response?.data?.message || "Invalid email or password";
 
@@ -77,6 +76,7 @@ const Pages_SignIn = () => {
 
   return (
     <div className="bg-white min-h-screen font-sans text-gray-800 antialiased flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-100 via-white to-indigo-100">
+      <ToastContainer position="top-right" />
       <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 md:p-10 border border-gray-100">
         
         {/* HEADER SECTION */}

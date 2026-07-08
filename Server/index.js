@@ -5,10 +5,10 @@ import connectDB from './config/db.js'
 
 import CreateClient from './routes/client.route.js'
 
-import SignIn from './routes/client.route.js'
+// import SignIn from './routes/client.route.js'
 
-
-
+import clientRoutes from './routes/client.route.js'
+import cookieParser from 'cookie-parser'
 // Load environment variables from .env file
 dotenv.config()
 
@@ -20,6 +20,7 @@ connectDB()
 
 // Body parser middleware (allows your app to read JSON payloads)
 app.use(express.json())
+app.use(cookieParser())
 
 ///////connecting client through cors
 app.use(cors({
@@ -34,8 +35,9 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/client',CreateClient)
 
-app.use('/api/v1/auth',SignIn)
+// app.use('/api/v1/auth',SignIn)
 
+app.use('/api/user', clientRoutes);
 
 
 
