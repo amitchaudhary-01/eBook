@@ -9,19 +9,19 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     // Login
-    const signin = async (email, password) => {
+   const signin = async (email, password) => {
+  const res = await API.post("/client/signin", {
+    email,
+    password,
+  });
 
-        const res = await API.post("/client/signin", {
-            email,
-            password,
-        });
+  console.log(res.data); // Add this
 
-        localStorage.setItem("token", res.data.token);
+  localStorage.setItem("token", res.data.token);
+  setUser(res.data.user);
 
-        setUser(res.data.user);
-
-        return res.data;
-    };
+  return res.data;
+};
 
     // Signup
     const signup = async (fullname, email, password) => {
