@@ -13,7 +13,7 @@ router.post('/me',me)
 
 router.post("/logout",logout)
 
-router.post('/get',GetClient)
+router.get('/getclients', GetClient);
 
 router.get('/profile', isAuthenticated, getUserProfile);
 

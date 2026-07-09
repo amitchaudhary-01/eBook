@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import BookCard from '../components/Ebooks/BookCard';
+import { useLocation } from 'react-router-dom';
 
 const Pages_Book = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const searchQuery = queryParams.get('search'); // Contains typed keyword
   const [allBooks, setAllBooks] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
 
   useEffect(() => {
     // Fetches your entire digital library catalog from your MERN backend
-    fetch('http://localhost:5000/api/books')
+    fetch(`http://localhost:3000/api/books?search=${searchQuery}`)
       .then(res => res.json())
       .then(data => setAllBooks(data))
       .catch(err => console.error("Error loading library catalog:", err));

@@ -12,6 +12,10 @@ const clientSchema = new mongoose.Schema({
     password:{
         required:true,
         type:String
+    },
+    role:{
+        default:'user',
+        type:String
     }
 })
 

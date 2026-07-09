@@ -1,85 +1,52 @@
-import axios from 'axios';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { useAuth } from '../context/AuthContext'; // <-- Import Auth Context
 
 const Pages_SignIn = () => {
   const navigate = useNavigate();
+  const { signin } = useAuth(); // <-- Extract signin function
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Initialize react-hook-form
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      email: '',
-      password: '',
-      rememberMe: false,
-    }
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: { email: '', password: '', rememberMe: false }
   });
 
-  // Submission handler receiving validated data
- const onSubmit = async (data) => {
-  setSubmitError("");
-  setIsSubmitting(true);
+  const onSubmit = async (data) => {
+    setSubmitError("");
+    setIsSubmitting(true);
 
-  try {
-    const res = await axios.post("http://localhost:3000/api/v1/client/signin",data,{withCredentials: true,} );
+    try {
+      // Use auth context signin function
+      const res = await signin(data.email, data.password);
 
-      toast.success("Client Logged In Successfully")
+      toast.success(res?.message || "Logged In Successfully");
+
       setTimeout(() => {
-    navigate('/');
-  }, 1200);
-    
-  } catch (error) {
-    const message = error.response?.data?.message || "Invalid email or password";
+        if (res?.user?.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
+      }, 1200);
 
-    setSubmitError(message);
-    toast.error(message);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
-  //   try {
-  //     const response = await fetch('http://localhost:3000/api/v1/auth/signin', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       credentials: 'include',
-  //       body: JSON.stringify({
-  //         email: data.email,
-  //         password: data.password,
-  //       }),
-  //     });
-
-  //     const result = await response.json();
-
-  //     if (!response.ok) {
-  //       throw new Error(result.message || 'Sign in failed');
-  //     }
-  //     navigate('/');
-  //   } catch (error) {
-  //     setSubmitError(error.message);
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
-
+    } catch (error) {
+      const message = error.response?.data?.message || "Invalid email or password";
+      setSubmitError(message);
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="bg-white min-h-screen font-sans text-gray-800 antialiased flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-100 via-white to-indigo-100">
       <ToastContainer position="top-right" />
       <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 md:p-10 border border-gray-100">
         
-        {/* HEADER SECTION */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-black text-slate-900 mb-2">
             Welcome Back to <span className="text-indigo-600">eBook.</span>
@@ -89,10 +56,8 @@ const Pages_SignIn = () => {
           </p>
         </div>
 
-        {/* SIGN IN FORM */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           
-          {/* Email Input */}
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
               Email Address
@@ -116,7 +81,6 @@ const Pages_SignIn = () => {
             )}
           </div>
 
-          {/* Password Input */}
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
               Password
@@ -136,7 +100,6 @@ const Pages_SignIn = () => {
             )}
           </div>
 
-          {/* Remember Me & Forgot Password Grid */}
           <div className="flex items-center justify-between pt-1">
             <div className="flex items-center gap-2">
               <input
@@ -159,7 +122,6 @@ const Pages_SignIn = () => {
             <p className="text-sm text-rose-500 font-semibold">{submitError}</p>
           )}
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
@@ -169,7 +131,6 @@ const Pages_SignIn = () => {
           </button>
         </form>
 
-        {/* Footer Link */}
         <div className="text-center mt-8 pt-6 border-t border-gray-100">
           <p className="text-sm text-gray-500">
             Don't have an account yet?{' '}

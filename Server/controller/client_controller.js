@@ -43,49 +43,107 @@ export default Create;
 
 /////signIn///
 
+// export const signIn = async (req, res) => {
+//     try {
+//         const { email, password } = req.body;
+
+//         if (!email || !password) {
+//             return res.status(400).json({
+//                 message: "Email and Password required"
+//             });
+//         }
+// ////////////////find if userexist/////////////
+//         const clientExist = await Client.findOne({ email });
+
+//         if (!clientExist) {
+//             return res.status(400).json({
+//                 message: "Email doesn't Exist"
+//             });
+//         }
+// ////////////compare password/////////////
+//         const checkPassword = await bcrypt.compare(password, clientExist.password);
+
+//         if (!checkPassword) {
+//             return res.status(401).json({
+//                 message: "Invalid email or password"
+//             });
+//         }
+// ///////////create JWT///////////////
+//         const token = jwt.sign({ id: clientExist._id },process.env.JWT_SECRET_KEY || 'book-secret-key',{ expiresIn: '1h' }
+//         );
+// ////////////create cookie////////
+//         res.cookie('client', token, {
+//             httpOnly: true,
+//             sameSite: 'lax',
+//             maxAge: 24 * 60 * 60 * 1000
+//         });
+// //////////response/////////
+//         return res.status(201).json({
+//             message: "Client LoggedIn Successfully",
+//             data: token
+//         });
+//     } catch (error) {
+//         return res.status(500).json({
+//             message: "Server Error"
+//         });
+//     }
+// };
+
 export const signIn = async (req, res) => {
     try {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({
-                message: "Email and Password required"
-            });
+            return res.status(400).json({ message: "Email and Password required" });
         }
-////////////////find if userexist/////////////
+
+        // Find user
         const clientExist = await Client.findOne({ email });
-
         if (!clientExist) {
-            return res.status(400).json({
-                message: "Email doesn't Exist"
-            });
+            return res.status(400).json({ message: "Email doesn't Exist" });
         }
-////////////compare password/////////////
-        const checkPassword = await bcrypt.compare(password, clientExist.password);
 
+        // Verify password
+        const checkPassword = await bcrypt.compare(password, clientExist.password);
         if (!checkPassword) {
-            return res.status(401).json({
-                message: "Invalid email or password"
-            });
+            return res.status(401).json({ message: "Invalid email or password" });
         }
-///////////create JWT///////////////
-        const token = jwt.sign({ id: clientExist._id },process.env.JWT_SECRET_KEY || 'book-secret-key',{ expiresIn: '1h' }
+
+        // Determine user role (defaults to 'user' if empty)
+        const userRole = clientExist.role || 'user';
+
+        // Create JWT token including role
+        const token = jwt.sign(
+            { id: clientExist._id, role: userRole },
+            process.env.JWT_SECRET_KEY || 'book-secret-key',
+            { expiresIn: '1h' }
         );
-////////////create cookie////////
+
+        // Set HTTP Cookie
         res.cookie('client', token, {
             httpOnly: true,
             sameSite: 'lax',
             maxAge: 24 * 60 * 60 * 1000
         });
-//////////response/////////
-        return res.status(201).json({
-            message: "Client LoggedIn Successfully",
-            data: token
+
+        // Set customized message based on role
+        const successMessage = userRole === 'admin' 
+            ? "Admin Logged In Successfully" 
+            : "Client Logged In Successfully";
+
+        return res.status(200).json({
+            message: successMessage,
+            token,
+            user: {
+                id: clientExist._id,
+                fullname: clientExist.fullname,
+                email: clientExist.email,
+                role: userRole
+            }
         });
+
     } catch (error) {
-        return res.status(500).json({
-            message: "Server Error"
-        });
+        return res.status(500).json({ message: "Server Error" });
     }
 };
 
@@ -128,18 +186,20 @@ export const me = async (req, res) => {
 };
 
 
-export const GetClient = async(req,res)=>{
+export const GetClient = async (req, res) => {
     try {
-        const data = await Client.find()
-
+        const data = await Client.find();
         return res.status(200).json({
-            message:"Get Client Data"
-        })
+            success: true,
+            message: "Get Client Data",
+            data: data
+        });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({
-            message:"Server Error"
-        })
-        
+            success: false,
+            message: "Server Error"
+        });
     }
-}
+};
 

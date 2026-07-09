@@ -1,33 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import BookCard from '../components/Ebooks/BookCard';
 import Newsletter from '../sections/Newsletter';
+import API from '../services/axios'; // <-- Import central API instance
 
 const Pages_Home = () => {
   const [trendingBooks, setTrendingBooks] = useState([]);
   const [bestSellers, setBestSellers] = useState([]);
 
-  useEffect(() => {
-    let isMounted = true;
+useEffect(() => {
+  let isMounted = true;
 
-    fetch('http://localhost:5173/api/books?trending=true')
-      .then(res => res.json())
-      .then(data => {
-        if (isMounted) setTrendingBooks(data);
-      })
-      .catch(err => console.error("Error loading trending elements:", err));
+  API.get('/books?trending=true')
+    .then(res => {
+      if (isMounted) {
+        // Fallback to empty array if response data isn't an array
+        const data = Array.isArray(res.data) ? res.data : res.data?.books || [];
+        setTrendingBooks(data);
+      }
+    })
+    .catch(err => {
+      console.error("Error loading trending elements:", err);
+      if (isMounted) setTrendingBooks([]);
+    });
 
-    fetch('http://localhost:5173/api/books?bestseller=true')
-      .then(res => res.json())
-      .then(data => {
-        if (isMounted) setBestSellers(data);
-      })
-      .catch(err => console.error("Error loading bestseller elements:", err));
+  API.get('/books?bestseller=true')
+    .then(res => {
+      if (isMounted) {
+        const data = Array.isArray(res.data) ? res.data : res.data?.books || [];
+        setBestSellers(data);
+      }
+    })
+    .catch(err => {
+      console.error("Error loading bestseller elements:", err);
+      if (isMounted) setBestSellers([]);
+    });
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
+  return () => {
+    isMounted = false;
+  };
+}, []);
   return (
     <div className="bg-white min-h-screen font-sans text-gray-800 antialiased">
       
@@ -49,7 +60,7 @@ const Pages_Home = () => {
         </div>
         <div className="relative flex justify-center items-center w-full md:w-1/2">
           <div className="w-80 h-80 md:w-96 md:h-96 bg-indigo-600 rounded-full overflow-hidden relative shadow-2xl">
-            <img src="pp.jpg" alt="Hero Portrait" className="w-full h-full object-cover" />
+            <img src="book.jpg" alt="Hero Portrait" className="w-full h-full object-cover" />
           </div>
           <div className="absolute bottom-6 right-12 bg-white p-4 rounded-2xl shadow-xl flex items-center gap-3 border border-gray-100">
             <div className="bg-emerald-100 p-2 rounded-full text-emerald-600 font-bold">✓</div>
@@ -80,39 +91,37 @@ const Pages_Home = () => {
       </section>
 
       {/* SECTION 3: SPLIT DATA GRIDS */}
-      <section className="py-12 px-8 md:px-24 grid md:grid-cols-2 gap-12">
-        {/* Trending Column */}
-        <div>
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-slate-900">Trending This Week</h3>
-            <button className="text-sm font-semibold text-indigo-600 hover:underline">View All</button>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {trendingBooks.length > 0 ? (
-              trendingBooks.slice(0, 4).map(book => <BookCard key={book._id} book={book} />)
-            ) : (
-              <p className="text-gray-400 text-sm">No trending books active.</p>
-            )}
-          </div>
-        </div>
+<section className="py-12 px-8 md:px-24 grid md:grid-cols-2 gap-12">
+  <div>
+    <div className="flex justify-between items-center mb-6">
+      <h3 className="text-2xl font-bold text-slate-900">Trending This Week</h3>
+      <button className="text-sm font-semibold text-indigo-600 hover:underline">View All</button>
+    </div>
+    <div className="grid grid-cols-2 gap-4">
+      {Array.isArray(trendingBooks) && trendingBooks.length > 0 ? (
+        trendingBooks.slice(0, 4).map(book => <BookCard key={book._id} book={book} />)
+      ) : (
+        <p className="text-gray-400 text-sm">No trending books active.</p>
+      )}
+    </div>
+  </div>
 
-        {/* Bestsellers Column */}
-        <div>
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-slate-900">Best Selling Books</h3>
-            <button className="text-sm font-semibold text-indigo-600 hover:underline">View All</button>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {bestSellers.length > 0 ? (
-              bestSellers.slice(0, 4).map(book => <BookCard key={book._id} book={book} />)
-            ) : (
-              <p className="text-gray-400 text-sm">No best selling books found.</p>
-            )}
-          </div>
-        </div>
-      </section>
+  <div>
+    <div className="flex justify-between items-center mb-6">
+      <h3 className="text-2xl font-bold text-slate-900">Best Selling Books</h3>
+      <button className="text-sm font-semibold text-indigo-600 hover:underline">View All</button>
+    </div>
+    <div className="grid grid-cols-2 gap-4">
+      {Array.isArray(bestSellers) && bestSellers.length > 0 ? (
+        bestSellers.slice(0, 4).map(book => <BookCard key={book._id} book={book} />)
+      ) : (
+        <p className="text-gray-400 text-sm">No best selling books found.</p>
+      )}
+    </div>
+  </div>
+</section>
 
-      {/* SECTION 4: WHY READERS CHOOSE STATS */}
+      {/* SECTION 4: STATS */}
       <section className="bg-indigo-900 text-white py-16 px-8 md:px-24 mx-8 md:mx-24 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-12 my-16">
         <div className="max-w-md">
           <h3 className="text-3xl font-extrabold mb-4 leading-tight">Why Readers Choose eBooks</h3>
@@ -140,7 +149,7 @@ const Pages_Home = () => {
         <div className="w-full md:w-1/2 max-w-md">
           <span className="text-xs font-bold uppercase tracking-widest text-indigo-600 block mb-2">Meet Our Founder</span>
           <h2 className="text-3xl font-extrabold text-slate-900 mb-6">Amit Chaudhary</h2>
-          <p className="text-gray-600 text-sm leading-relaxed mb-6">Amit Chaudhary is a full stack developer , Computer Engineer, and Designer passionate about mindset, leadership, and accelerating tech growth.</p>
+          <p className="text-gray-600 text-sm leading-relaxed mb-6">Amit Chaudhary is a full stack developer, Computer Engineer, and Designer passionate about mindset, leadership, and accelerating tech growth.</p>
           <ul className="space-y-3 mb-8">
             {['FullStack Developer', 'Engineer'].map((role, idx) => (
               <li key={idx} className="flex items-center gap-3 text-sm text-gray-700 font-medium">
@@ -152,12 +161,12 @@ const Pages_Home = () => {
         </div>
         <div className="w-full md:w-1/2 flex justify-center">
           <div className="w-72 h-96 bg-indigo-900 rounded-3xl overflow-hidden shadow-2xl">
-            <img src="amit.jpg" alt="Amit Chaudhary Portrait" className="w-full h-full object-cover" />
+            <img src="pp.jpg" alt="Amit Chaudhary Portrait" className="w-full h-full object-cover" />
           </div>
         </div>
       </section>
 
-      {/* SECTION 6: LIMITED TIME OFFER CONTAINER */}
+      {/* SECTION 6: LIMITED TIME OFFER */}
       <section className="my-16 mx-8 md:mx-24 bg-rose-50 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
         <div className="max-w-md">
           <span className="bg-rose-100 text-rose-600 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">Limited Offer</span>
@@ -199,31 +208,16 @@ const Pages_Home = () => {
         </div>
       </section>
 
-      {/* SECTION 8: NEWSLETTER BANNER  */}
-       <section className="bg-indigo-600 text-white py-16 px-8 md:px-24 mx-8 md:mx-24 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-8 my-16">
-        <div>
-          <h3 className="text-3xl font-extrabold mb-2">Stay Updated With Our Newsletter</h3>
-          <p className="text-indigo-100 text-sm">Get the latest updates, special offers, and book recommendations direct to your inbox.</p>
-        </div>
-        <div className="flex w-full md:w-auto max-w-md gap-2 bg-white/10 p-2 rounded-2xl backdrop-blur-md">
-          <input type="email" placeholder="Enter your email" className="bg-transparent text-white placeholder-indigo-200 px-4 py-2 focus:outline-none w-full text-sm" />
-          <button className="bg-white text-indigo-600 font-bold px-5 py-2 rounded-xl text-sm hover:bg-indigo-50 transition">Subscribe</button>
-        </div>
-      </section>
-
-      
-
-     
+      {/* SECTION 8: NEWSLETTER BANNER */}
+      <Newsletter />
 
       {/* SECTION 9: BRAND LOGOS */}
-      <div className="py-10 border-y border-gray-100 px-8 md:px-24 flex flex-wrap justify-between items-center gap-6  font-bold text-xl">
-        <span className="flex items-center gap-1">
-          <img src='download.webp' alt='Google logo' className="h-15 inline"/>
-          </span>
+      <div className="py-10 border-y border-gray-100 px-8 md:px-24 flex flex-wrap justify-between items-center gap-6 font-bold text-xl">
+        <span className="flex items-center gap-1"><img src='download.webp' alt='Google logo' className="h-15 inline"/></span>
         <span className="flex items-center gap-1"><img src="microsoft.webp" alt="microsoft logo" className="h-25 inline"/></span>
-       <span className="flex items-center gap-1"><img src="amazon.jfif" alt="amazon logo" className="h-25 inline"/></span>
+        <span className="flex items-center gap-1"><img src="amazon.jfif" alt="amazon logo" className="h-25 inline"/></span>
         <span className="flex items-center gap-1"><img src="airbnb.jfif" alt="airbnb logo" className="h-15 inline"/></span>
-       <span className="flex items-center gap-1"><img src="spotify.webp" alt="spotify logo" className="h-25 inline"/></span>
+        <span className="flex items-center gap-1"><img src="spotify.webp" alt="spotify logo" className="h-25 inline"/></span>
       </div>
 
     </div>

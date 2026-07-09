@@ -1,33 +1,26 @@
 import React from 'react';
-import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useForm } from 'react-hook-form'; 
-import { Link, useNavigate } from 'react-router-dom'; // Swapped Navigate for useNavigate
+import { Link, useNavigate } from 'react-router-dom';
+import API from '../services/axios'; // <-- ADD THIS IMPORT
 
 const Pages_SignUp = () => {
-  const navigate = useNavigate(); // Initialize programmatic routing hook
+  const navigate = useNavigate();
 
-  // Initialize react-hook-form
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  // Handle network request securely with async/await
   const onSubmit = async (data) => {
     try {
-      // console.log('Sending Form Data to API:', data);
-      
-      const response = await axios.post("http://localhost:3000/api/v1/client/create", data);
-      
-     
-        toast.success("User signed up successfully!");
-        setTimeout(()=>{
-          {navigate('/signin')}
-        },1200) // Correctly redirecting user via hook
-     
+      const response = await API.post("/client/create", data);
+      toast.success("User signed up successfully!");
+      setTimeout(() => {
+        navigate('/signin');
+      }, 1200);
     } catch (error) {
       console.error('Signup error context:', error);
       const backendErrorMessage = error.response?.data?.message || "Something went wrong. Please try again.";
@@ -37,11 +30,9 @@ const Pages_SignUp = () => {
 
   return (
     <div className="bg-white min-h-screen font-sans text-gray-800 antialiased flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-100 via-white to-indigo-100">
-
       <ToastContainer position='top-right'/>
       <div className="max-w-4xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-gray-100">
         
-        {/* LEFT SIDE: BRANDING/MARKETING SPLASH */}
         <div className="w-full md:w-1/2 bg-indigo-900 p-8 md:p-12 flex flex-col justify-between text-white relative overflow-hidden">
           <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-600 rounded-full blur-2xl opacity-40"></div>
           
@@ -70,7 +61,6 @@ const Pages_SignUp = () => {
           </div>
         </div>
 
-        {/* RIGHT SIDE: SIGNUP FORM */}
         <div className="w-full md:w-1/2 p-8 md:p-12 bg-white flex flex-col justify-center">
           <div className="mb-8">
             <h3 className="text-2xl font-extrabold text-slate-900 mb-2">Create Account</h3>
@@ -79,23 +69,21 @@ const Pages_SignUp = () => {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             
-            {/* Full Name Input */}
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Full Name</label>
               <input
                 type="text"
                 placeholder="Enter Full Name"
                 className={`w-full px-4 py-3 bg-gray-50 border rounded-xl text-sm focus:outline-none focus:bg-white transition ${
-                  errors.fullName ? 'border-rose-400 focus:border-rose-500' : 'border-gray-200 focus:border-indigo-600'
+                  errors.fullname ? 'border-rose-400 focus:border-rose-500' : 'border-gray-200 focus:border-indigo-600'
                 }`}
                 {...register('fullname', { required: 'Full name is required' })}
               />
-              {errors.fullName && (
-                <p className="text-xs text-rose-500 font-semibold mt-1.5 pl-1">{errors.fullName.message}</p>
+              {errors.fullname && (
+                <p className="text-xs text-rose-500 font-semibold mt-1.5 pl-1">{errors.fullname.message}</p>
               )}
             </div>
 
-            {/* Email Input */}
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Email Address</label>
               <input
@@ -117,7 +105,6 @@ const Pages_SignUp = () => {
               )}
             </div>
 
-            {/* Password Input */}
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Password</label>
               <input
@@ -136,7 +123,6 @@ const Pages_SignUp = () => {
               )}
             </div>
 
-            {/* Terms and Conditions Checkbox */}
             <div className="pt-1">
               <div className="flex items-start gap-3">
                 <input
@@ -154,7 +140,6 @@ const Pages_SignUp = () => {
               )}
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               className="w-full bg-indigo-600 text-white font-medium py-3 rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-600/20 mt-4"
@@ -163,7 +148,6 @@ const Pages_SignUp = () => {
             </button>
           </form>
 
-          {/* Log In Redirect */}
           <p className="text-sm text-center text-gray-500 mt-8">
             Already have an account?{' '}
             <Link to="/signin" className="font-semibold text-indigo-600 hover:underline">

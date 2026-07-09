@@ -6,8 +6,9 @@ import connectDB from './config/db.js'
 import CreateClient from './routes/client.route.js'
 
 // import SignIn from './routes/client.route.js'
-
 import clientRoutes from './routes/client.route.js'
+
+import bookrouter from './routes/book_router.js'
 import cookieParser from 'cookie-parser'
 // Load environment variables from .env file
 dotenv.config()
@@ -38,6 +39,10 @@ app.use('/api/v1/client',CreateClient)
 // app.use('/api/v1/auth',SignIn)
 
 app.use('/api/user', clientRoutes);
+
+////////new book add///
+
+app.use('/api/v1/book',bookrouter)
 
 
 
