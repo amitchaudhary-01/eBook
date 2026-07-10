@@ -143,9 +143,13 @@ export const signIn = async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json({ message: "Server Error" });
-    }
-};
+    console.log(error);
+
+    return res.status(500).json({
+        message: "Server Error"
+    });
+}
+}
 
 export const logout = async (req, res) => {
   try {
