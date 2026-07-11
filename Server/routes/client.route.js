@@ -9,7 +9,7 @@ router.post('/create', Create)
 
 router.post('/signin', signIn)
 
-router.post('/me',me)
+router.get('/me',me)
 
 router.post("/logout",logout)
 

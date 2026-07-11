@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import API from '../../services/axios';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -8,7 +9,7 @@ const AdminUsers = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/client/getclients'); 
+        const response = await fetch('/client/me'); 
         if (!response.ok) {
           throw new Error('Failed to fetch clients');
         }

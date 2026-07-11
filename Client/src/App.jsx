@@ -44,12 +44,12 @@ export default function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Pages_Home />} />
             <Route path="aboutus" element={<ProtectedRoute><Pages_AboutUs /></ProtectedRoute>} />
-            <Route path="book" element={<Pages_Book />} />
-            <Route path="sale" element={<Pages_ForSale />} />
-            <Route path="rent" element={<Pages_ForRent />} />
-            <Route path="Testimonial" element={<Pages_Testimonials />} />
-            <Route path="price" element={<Pages_Pricing />} />
-            <Route path="blog" element={<Pages_Blog />} />
+            <Route path="book" element={<ProtectedRoute><Pages_Book /></ProtectedRoute>} />
+            <Route path="sale" element={<ProtectedRoute><Pages_ForSale /></ProtectedRoute>} />
+            <Route path="rent" element={<ProtectedRoute><Pages_ForRent /></ProtectedRoute>} />
+            <Route path="Testimonial" element={<ProtectedRoute><Pages_Testimonials /></ProtectedRoute>} />
+            <Route path="price" element={<ProtectedRoute><Pages_Pricing /></ProtectedRoute>} />
+            <Route path="blog" element={<ProtectedRoute><Pages_Blog /></ProtectedRoute>} />
           </Route>
 
           {/* Auth Routes */}
