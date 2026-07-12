@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
     // Logout
     const logout = async () => {
 
-        await API.get("/client/logout");
+        await API.post("/client/logout");
 
         localStorage.removeItem("token");
 

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import API from '../../services/axios';
 
 const AdminBooks = () => {
   const [books, setBooks] = useState([]);
@@ -22,7 +24,7 @@ const AdminBooks = () => {
 
   const fetchBooks = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/v1/books');
+      const res = await API.get('/book/addbook');
       setBooks(res.data || []);
     } catch (err) {
       console.error("Error fetching books:", err);
@@ -56,14 +58,14 @@ const AdminBooks = () => {
         withCredentials: true,
       });
 
-      alert('Book added successfully!');
+      toast.success('Book added successfully!');
       setFormData({ title: '', author: '', price: '', category: '' });
       setCoverImage(null);
       setShowForm(false);
       fetchBooks(); // Refresh list
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || 'Failed to add book');
+      toast.error(error.response?.data?.message || 'Failed to add book');
     } finally {
       setLoading(false);
     }
@@ -100,7 +102,7 @@ const AdminBooks = () => {
                   onChange={handleInputChange}
                   required
                   placeholder="e.g., Jivan ko Cheu Bata"
-                  className="w-full border px-3 py-2 rounded-lg text-sm focus:outline-purple-500"
+                  className="w-full border px-3 py-2 rounded-lg text-sm text-black focus:outline-purple-500"
                 />
               </div>
               <div>
@@ -112,7 +114,7 @@ const AdminBooks = () => {
                   onChange={handleInputChange}
                   required
                   placeholder="e.g., F. Suman Pokhrel"
-                  className="w-full border px-3 py-2 rounded-lg text-sm focus:outline-purple-500"
+                  className="w-full border px-3 py-2 rounded-lg text-sm text-black focus:outline-purple-500"
                 />
               </div>
             </div>
@@ -127,7 +129,7 @@ const AdminBooks = () => {
                   onChange={handleInputChange}
                   required
                   placeholder="1"
-                  className="w-full border px-3 py-2 rounded-lg text-sm focus:outline-purple-500"
+                  className="w-full border px-3 py-2 rounded-lg text-sm text-black focus:outline-purple-500"
                 />
               </div>
               <div>
@@ -139,7 +141,7 @@ const AdminBooks = () => {
                   onChange={handleInputChange}
                   required
                   placeholder="Fiction / Business / Life"
-                  className="w-full border px-3 py-2 rounded-lg text-sm focus:outline-purple-500"
+                  className="w-full border px-3 py-2 rounded-lg text-sm text-black focus:outline-purple-500"
                 />
               </div>
             </div>

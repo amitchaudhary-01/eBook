@@ -41,13 +41,13 @@ export default function Newsletter() {
     </div>
 
       {/* Gray Scale Brand Logo Bar Line */}
-      <div className="mt-16 border-y border-gray-100 py-10 px-8 md:px-24 flex flex-wrap justify-between items-center gap-6 opacity-30 grayscale font-sans font-bold text-lg select-none">
+      {/* <div className="mt-16 border-y border-gray-100 py-10 px-8 md:px-24 flex flex-wrap justify-between items-center gap-6 opacity-30 grayscale font-sans font-bold text-lg select-none">
         <span>Google</span>
         <span>Microsoft</span>
         <span>amazon</span>
         <span>airbnb</span>
         <span>Spotify</span>
-      </div>
+      </div> */}
     </section>
   );
 }

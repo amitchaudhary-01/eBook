@@ -1,22 +1,36 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+import { Client } from "../schema/client_schema.js";
 
 export const isAuthenticated = async (req, res, next) => {
-    try {
-        // 1. Get token from cookies or authorization headers
-        const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+  try {
+    const token =
+      req.cookies.client || req.headers.authorization?.split(" ")[1];
 
-        if (!token) {
-            return res.status(401).json({ success: false, message: "Unauthorized: No token provided" });
-        }
-
-        // 2. Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
-        // 3. Attach user ID to the request object so controllers can use it
-        req.userId = decoded.id; 
-
-        next(); // Move to the controller
-    } catch (error) {
-        return res.status(401).json({ success: false, message: "Unauthorized: Invalid token" });
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: No token provided",
+      });
     }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+    const user = await Client.findById(decoded.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    req.user = user;
+
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized: Invalid token",
+    });
+  }
 };

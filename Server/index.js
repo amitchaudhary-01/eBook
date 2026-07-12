@@ -3,10 +3,9 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import connectDB from './config/db.js'
 
-import CreateClient from './routes/client.route.js'
+import clientRoutes from './routes/client.route.js'
 
 // import SignIn from './routes/client.route.js'
-import clientRoutes from './routes/client.route.js'
 
 import bookrouter from './routes/book.route.js'
 import cookieParser from 'cookie-parser'
@@ -34,11 +33,7 @@ app.get('/', (req, res) => {
 })
 
 
-app.use('/api/v1/client',CreateClient)
-
-// app.use('/api/v1/auth',SignIn)
-
-app.use('/api/user', clientRoutes);
+app.use('/api/v1/client',clientRoutes)
 
 ////////new book add///
 

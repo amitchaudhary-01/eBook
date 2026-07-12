@@ -26,8 +26,6 @@ const Navbar = () => {
       await API.post('/client/logout', {}, { withCredentials: true });
 
       // 2. Clear local storage
-      localStorage.removeItem('user');
-
       // 3. Reset Context State
       if (logout) {
         logout();
@@ -44,7 +42,7 @@ const Navbar = () => {
       console.error('Logout failed:', error);
 
       // Fallback local cleanup if backend call fails
-      localStorage.removeItem('user');
+      localStorage.removeItem('token');
       if (setUser) setUser(null);
 
       toast.error(error.response?.data?.message || 'Logged out locally');

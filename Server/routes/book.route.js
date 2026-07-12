@@ -4,6 +4,6 @@ import { upload } from "../middleware/multer.js"
 
 const router = express.Router()
 
-router.post('/add-book', upload.single('coverImage',newbook_controller))
+router.post('/addbook', upload.single('coverImage',newbook_controller))
 
 export default router
