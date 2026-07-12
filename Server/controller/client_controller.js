@@ -28,11 +28,23 @@ const Create = async (req, res) => {
       password: hash,
     });
 
+    // 📡 REAL-TIME SOCKET EMIT
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("new_client_registered", {
+        _id: data._id,
+        fullname: data.fullname,
+        email: data.email,
+        createdAt: data.createdAt,
+      });
+    }
+
     return res.status(200).json({
       message: "Client Created Successfully",
       data: data,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       message: "Server Error",
     });
@@ -41,53 +53,7 @@ const Create = async (req, res) => {
 
 export default Create;
 
-/////signIn///
-
-// export const signIn = async (req, res) => {
-//     try {
-//         const { email, password } = req.body;
-
-//         if (!email || !password) {
-//             return res.status(400).json({
-//                 message: "Email and Password required"
-//             });
-//         }
-// ////////////////find if userexist/////////////
-//         const clientExist = await Client.findOne({ email });
-
-//         if (!clientExist) {
-//             return res.status(400).json({
-//                 message: "Email doesn't Exist"
-//             });
-//         }
-// ////////////compare password/////////////
-//         const checkPassword = await bcrypt.compare(password, clientExist.password);
-
-//         if (!checkPassword) {
-//             return res.status(401).json({
-//                 message: "Invalid email or password"
-//             });
-//         }
-// ///////////create JWT///////////////
-//         const token = jwt.sign({ id: clientExist._id },process.env.JWT_SECRET_KEY || 'book-secret-key',{ expiresIn: '1h' }
-//         );
-// ////////////create cookie////////
-//         res.cookie('client', token, {
-//             httpOnly: true,
-//             sameSite: 'lax',
-//             maxAge: 24 * 60 * 60 * 1000
-//         });
-// //////////response/////////
-//         return res.status(201).json({
-//             message: "Client LoggedIn Successfully",
-//             data: token
-//         });
-//     } catch (error) {
-//         return res.status(500).json({
-//             message: "Server Error"
-//         });
-//     }
-// };
+// --- Sign-in, Logout, Me, GetClient remain the same below ---
 
 export const signIn = async (req, res) => {
   try {
@@ -97,38 +63,31 @@ export const signIn = async (req, res) => {
       return res.status(400).json({ message: "Email and Password required" });
     }
 
-    // Find user
     const clientExist = await Client.findOne({ email });
     if (!clientExist) {
       return res.status(400).json({ message: "Email doesn't Exist" });
     }
 
-    // Verify password
     const checkPassword = await bcrypt.compare(password, clientExist.password);
     if (!checkPassword) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // Determine user role (defaults to 'user' if empty)
     const userRole = clientExist.role || "user";
 
-    // Create JWT token including role
     const token = jwt.sign(
       { id: clientExist._id, role: userRole },
       process.env.JWT_SECRET_KEY || "book-secret-key",
-      { expiresIn: "1h" },
+      { expiresIn: "1h" }
     );
 
-    // Set HTTP Cookie
     res.cookie("client", token, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
-
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    // Set customized message based on role
     const successMessage =
       userRole === "admin"
         ? "Admin Logged In Successfully"

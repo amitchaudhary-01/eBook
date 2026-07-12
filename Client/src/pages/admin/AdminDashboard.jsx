@@ -1,99 +1,103 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaBook,
   FaUsers,
   FaCartShopping,
   FaDollarSign,
-  FaArrowTrendUp,
   FaPlus,
   FaMagnifyingGlass,
   FaBell,
-  FaFilter,
-  FaChevronRight,
-  FaDownload,
+  FaXmark,
+  FaCheck,
 } from "react-icons/fa6";
+import { io } from "socket.io-client";
+import API from "../../services/axios";
 
-const stats = [
-  {
-    title: "Total Books",
-    value: "1,284",
-    icon: FaBook,
-    increase: "+12%",
-    period: "vs last month",
-    target: "Target: 1,500",
-  },
-  {
-    title: "Registered Users",
-    value: "8,642",
-    icon: FaUsers,
-    increase: "+24%",
-    period: "vs last month",
-    target: "92% active rate",
-  },
-  {
-    title: "Orders Processed",
-    value: "436",
-    icon: FaCartShopping,
-    increase: "+18%",
-    period: "vs last month",
-    target: "99.2% fulfilled",
-  },
-  {
-    title: "Gross Revenue",
-    value: "$18,240",
-    icon: FaDollarSign,
-    increase: "+31%",
-    period: "vs last month",
-    target: "$22k monthly goal",
-  },
-];
-
-const recentOrders = [
-  {
-    id: "ORD-9082",
-    customer: "Elena Rostova",
-    book: "Designing Data-Intensive Apps",
-    amount: "$48.00",
-    status: "Completed",
-    date: "2 mins ago",
-  },
-  {
-    id: "ORD-9081",
-    customer: "Marcus Vance",
-    book: "System Design Interview",
-    amount: "$36.50",
-    status: "Completed",
-    date: "14 mins ago",
-  },
-  {
-    id: "ORD-9080",
-    customer: "Sarah Jenkins",
-    book: "Clean Architecture in Rust",
-    amount: "$52.00",
-    status: "Processing",
-    date: "1 hour ago",
-  },
-  {
-    id: "ORD-9079",
-    customer: "David Chen",
-    book: "The Pragmatic Programmer",
-    amount: "$29.99",
-    status: "Completed",
-    date: "3 hours ago",
-  },
-];
+// Connect to backend WebSocket server URL
+const SOCKET_URL = "http://localhost:5000"; // Update this to match your Express backend port
 
 export default function AdminDashboard() {
+  const [clientCount, setClientCount] = useState(0);
+  const [recentClients, setRecentClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // REAL-TIME NOTIFICATIONS STATE
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  // 1. Fetch initial telemetry
+  useEffect(() => {
+    const fetchDashboardTelemetry = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await API.get("/client/getclients", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const clients = res.data.data || [];
+        setClientCount(clients.length);
+        setRecentClients(clients.slice(-5).reverse());
+      } catch (err) {
+        console.error("Dashboard data load error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardTelemetry();
+  }, []);
+
+  // 2. Setup WebSocket connection for live alerts
+  useEffect(() => {
+    const socket = io(SOCKET_URL, {
+      transports: ["websocket"],
+      auth: { token: localStorage.getItem("token") },
+    });
+
+    socket.on("connect", () => {
+      console.log("Connected to Real-time Notification Stream");
+    });
+
+    // Listen for new user registration event from backend
+    socket.on("new_client_registered", (newClient) => {
+      // Update counts and tables instantly
+      setClientCount((prev) => prev + 1);
+      setRecentClients((prev) => [newClient, ...prev.slice(0, 4)]);
+
+      // Push to notification drawer
+      const newNotif = {
+        id: Date.now(),
+        title: "New Client Registered",
+        message: `${newClient.fullname || newClient.email} created an account.`,
+        time: "Just now",
+        read: false,
+      };
+
+      setNotifications((prev) => [newNotif, ...prev]);
+      setUnreadCount((prev) => prev + 1);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const markAllAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setUnreadCount(0);
+  };
+
   return (
-    <>
-      {/* TOP BAR / HEADER */}
+    <div className="space-y-6 text-slate-200">
+      {/* HEADER */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             Platform Overview
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm mt-1">
-            Real-time telemetry and store management summary.
+            Real-time backend telemetry and live client management summary.
           </p>
         </div>
 
@@ -102,15 +106,87 @@ export default function AdminDashboard() {
             <FaMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs" />
             <input
               type="text"
-              placeholder="Search orders, books..."
+              placeholder="Search platform..."
               className="bg-[#121824] border border-slate-800 text-xs text-slate-200 rounded-lg pl-9 pr-4 py-2 w-48 focus:w-64 focus:outline-none focus:border-indigo-500 transition-all placeholder:text-slate-500"
             />
           </div>
 
-          <button className="relative p-2.5 bg-[#121824] border border-slate-800 rounded-lg text-slate-400 hover:text-white transition">
-            <FaBell className="text-sm" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-indigo-500 rounded-full" />
-          </button>
+          {/* NOTIFICATION BELL & DROPDOWN */}
+          <div className="relative">
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative p-2.5 bg-[#121824] border border-slate-800 rounded-lg text-slate-400 hover:text-white transition"
+              title="Notifications"
+            >
+              <FaBell className="text-sm" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-500 text-[10px] font-bold text-white">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* LIVE NOTIFICATION PANEL DROPDOWN */}
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#121824] border border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden">
+                <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs font-bold text-white">Notifications</h3>
+                    {unreadCount > 0 && (
+                      <span className="bg-indigo-500/10 text-indigo-400 text-[10px] px-2 py-0.5 rounded border border-indigo-500/20 font-mono">
+                        {unreadCount} new
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={markAllAsRead}
+                        className="text-[11px] text-indigo-400 hover:underline flex items-center gap-1"
+                      >
+                        <FaCheck size={10} /> Mark read
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setShowNotifications(false)}
+                      className="text-slate-400 hover:text-white p-1"
+                    >
+                      <FaXmark size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="max-h-72 overflow-y-auto divide-y divide-slate-800/50">
+                  {notifications.length === 0 ? (
+                    <div className="p-6 text-center text-xs text-slate-500">
+                      No new real-time alerts.
+                    </div>
+                  ) : (
+                    notifications.map((notif) => (
+                      <div
+                        key={notif.id}
+                        className={`p-3 text-xs transition ${
+                          !notif.read ? "bg-indigo-600/5" : "hover:bg-slate-900/30"
+                        }`}
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <p className="font-semibold text-slate-200">
+                            {notif.title}
+                          </p>
+                          <span className="text-[10px] font-mono text-slate-500">
+                            {notif.time}
+                          </span>
+                        </div>
+                        <p className="text-slate-400 mt-1 text-[11px]">
+                          {notif.message}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           <button className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-lg shadow-indigo-600/20 transition">
             <FaPlus /> Add Title
@@ -118,213 +194,145 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      {/* METRICS / STATS GRID */}
+      {/* METRICS CARDS */}
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {stats.map((item, index) => {
-          const Icon = item.icon;
-          return (
-            <div
-              key={index}
-              className="bg-[#121824] border border-slate-800/90 rounded-xl p-5 hover:border-slate-700/80 transition-all group"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium text-slate-400">
-                  {item.title}
-                </span>
-                <div className="p-2 rounded-lg bg-slate-800/80 border border-slate-700/50 text-indigo-400 group-hover:text-indigo-300 transition">
-                  <Icon size={14} />
-                </div>
-              </div>
-
-              <div className="flex items-baseline justify-between">
-                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  {item.value}
-                </h2>
-                <div className="flex items-center gap-1 text-emerald-400 text-xs font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
-                  <FaArrowTrendUp size={10} />
-                  {item.increase}
-                </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-500">
-                <span>{item.period}</span>
-                <span className="font-mono text-slate-400">{item.target}</span>
-              </div>
-            </div>
-          );
-        })}
-      </section>
-
-      {/* PERFORMANCE & QUICK ACTIONS */}
-      <section className="grid lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-8 bg-[#121824] border border-slate-800/90 rounded-xl p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-base font-bold text-white">
-                  Revenue Stream Breakdown
-                </h2>
-                <p className="text-slate-400 text-xs mt-0.5">
-                  Monthly performance distribution by digital product type
-                </p>
-              </div>
-              <button className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-white border border-slate-800 rounded-lg px-3 py-1.5 bg-slate-900/50">
-                <FaFilter size={10} /> Filter
-              </button>
-            </div>
-
-            <div className="space-y-5">
-              {[
-                {
-                  name: "Direct eBook Sales",
-                  amount: "$15,504",
-                  percent: "85%",
-                  width: "w-[85%]",
-                  color: "bg-indigo-500",
-                },
-                {
-                  name: "Subscription Membership",
-                  amount: "$2,626",
-                  percent: "72%",
-                  width: "w-[72%]",
-                  color: "bg-purple-500",
-                },
-                {
-                  name: "Digital Rentals & Licenses",
-                  amount: "$1,110",
-                  percent: "58%",
-                  width: "w-[58%]",
-                  color: "bg-sky-500",
-                },
-              ].map((item, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className="font-medium text-slate-300">
-                      {item.name}
-                    </span>
-                    <span className="font-mono text-slate-400">
-                      {item.amount} ({item.percent})
-                    </span>
-                  </div>
-                  <div className="h-2 bg-slate-800/80 rounded-full overflow-hidden p-0.5">
-                    <div
-                      className={`${item.color} ${item.width} h-full rounded-full transition-all duration-700`}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-8 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-            <span>🚀 Direct eBook Sales are up <strong className="text-indigo-400">14%</strong> week-over-week.</span>
-            <button className="text-indigo-400 hover:underline flex items-center gap-1 font-medium">
-              View Full Analytics <FaChevronRight size={10} />
-            </button>
-          </div>
-        </div>
-
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-gradient-to-br from-indigo-900/40 via-[#121824] to-[#121824] border border-indigo-500/30 rounded-xl p-6 relative overflow-hidden">
-            <div className="absolute -top-12 -right-12 w-32 h-32 bg-indigo-500/10 blur-2xl pointer-events-none" />
-            
-            <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
-              Daily Run Rate
+        <div className="bg-[#121824] border border-slate-800/90 rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-slate-400">
+              Registered Clients
             </span>
-
-            <div className="mt-4">
-              <span className="text-xs text-slate-400">Today's Revenue</span>
-              <h3 className="text-3xl font-black text-white mt-0.5 tracking-tight">
-                $4,530.00
-              </h3>
-            </div>
-
-            <p className="text-slate-400 text-xs mt-3 leading-relaxed">
-              You've cleared <strong className="text-slate-200">82%</strong> of your daily target.
-            </p>
-          </div>
-
-          <div className="bg-[#121824] border border-slate-800/90 rounded-xl p-5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">
-              Quick Actions
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              <button className="flex flex-col items-center justify-center p-3 rounded-lg bg-slate-900/60 border border-slate-800 hover:border-slate-700 hover:bg-slate-800/60 text-slate-200 text-xs font-medium transition text-center gap-2">
-                <FaBook className="text-indigo-400 text-sm" /> Catalog
-              </button>
-              <button className="flex flex-col items-center justify-center p-3 rounded-lg bg-slate-900/60 border border-slate-800 hover:border-slate-700 hover:bg-slate-800/60 text-slate-200 text-xs font-medium transition text-center gap-2">
-                <FaUsers className="text-emerald-400 text-sm" /> Users
-              </button>
-              <button className="flex flex-col items-center justify-center p-3 rounded-lg bg-slate-900/60 border border-slate-800 hover:border-slate-700 hover:bg-slate-800/60 text-slate-200 text-xs font-medium transition text-center gap-2">
-                <FaCartShopping className="text-sky-400 text-sm" /> Orders
-              </button>
-              <button className="flex flex-col items-center justify-center p-3 rounded-lg bg-slate-900/60 border border-slate-800 hover:border-slate-700 hover:bg-slate-800/60 text-slate-200 text-xs font-medium transition text-center gap-2">
-                <FaDownload className="text-amber-400 text-sm" /> Export
-              </button>
+            <div className="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+              <FaUsers size={14} />
             </div>
           </div>
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              {loading ? "..." : clientCount}
+            </h2>
+            <span className="text-[11px] font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+              Live Stream Active
+            </span>
+          </div>
+          <p className="mt-4 pt-3 border-t border-slate-800/60 text-[11px] text-slate-500">
+            Active verified client accounts
+          </p>
+        </div>
+
+        <div className="bg-[#121824] border border-slate-800/90 rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-slate-400">
+              Catalog Items
+            </span>
+            <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+              <FaBook size={14} />
+            </div>
+          </div>
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              --
+            </h2>
+            <span className="text-[11px] text-slate-500">Inventory Status</span>
+          </div>
+          <p className="mt-4 pt-3 border-t border-slate-800/60 text-[11px] text-slate-500">
+            Syncing catalog collection
+          </p>
+        </div>
+
+        <div className="bg-[#121824] border border-slate-800/90 rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-slate-400">
+              Orders Processed
+            </span>
+            <div className="p-2 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400">
+              <FaCartShopping size={14} />
+            </div>
+          </div>
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              --
+            </h2>
+            <span className="text-[11px] text-slate-500">Fulfillment</span>
+          </div>
+          <p className="mt-4 pt-3 border-t border-slate-800/60 text-[11px] text-slate-500">
+            Awaiting sales API endpoint
+          </p>
+        </div>
+
+        <div className="bg-[#121824] border border-slate-800/90 rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-slate-400">
+              Total Revenue
+            </span>
+            <div className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400">
+              <FaDollarSign size={14} />
+            </div>
+          </div>
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              --
+            </h2>
+            <span className="text-[11px] text-slate-500">Gross Sales</span>
+          </div>
+          <p className="mt-4 pt-3 border-t border-slate-800/60 text-[11px] text-slate-500">
+            Awaiting payment integration
+          </p>
         </div>
       </section>
 
-      {/* DATA TABLE */}
-      <section className="bg-[#121824] border border-slate-800/90 rounded-xl overflow-hidden">
+      {/* RECENT REGISTRATIONS TABLE */}
+      <section className="bg-[#121824] border border-slate-800/90 rounded-xl overflow-hidden shadow-xl">
         <div className="p-5 border-b border-slate-800/80 flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-white">Recent Transactions</h2>
-            <p className="text-xs text-slate-400 mt-0.5">Live feed of global orders</p>
+            <h2 className="text-base font-bold text-white">
+              Recently Registered Clients
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Live user database sign-up feed
+            </p>
           </div>
-          <button className="text-xs text-indigo-400 hover:text-indigo-300 font-medium">
-            View All Transactions →
-          </button>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-300">
             <thead className="bg-[#0e1420] text-slate-400 font-mono uppercase text-[10px] tracking-wider border-b border-slate-800/80">
               <tr>
-                <th className="px-5 py-3">Order ID</th>
-                <th className="px-5 py-3">Customer</th>
-                <th className="px-5 py-3">Item Purchased</th>
-                <th className="px-5 py-3">Amount</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3 text-right">Time</th>
+                <th className="px-5 py-3.5">Name</th>
+                <th className="px-5 py-3.5">Email</th>
+                <th className="px-5 py-3.5">MongoDB ID</th>
+                <th className="px-5 py-3.5 text-right">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60">
-              {recentOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-slate-900/40 transition">
-                  <td className="px-5 py-3.5 font-mono text-indigo-400 font-medium">
-                    {order.id}
-                  </td>
-                  <td className="px-5 py-3.5 font-medium text-slate-200">
-                    {order.customer}
-                  </td>
-                  <td className="px-5 py-3.5 text-slate-400">
-                    {order.book}
-                  </td>
-                  <td className="px-5 py-3.5 font-mono font-semibold text-slate-200">
-                    {order.amount}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                        order.status === "Completed"
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                          : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                      }`}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5 text-right text-slate-500 font-mono">
-                    {order.date}
+              {recentClients.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="px-5 py-6 text-center text-slate-500">
+                    {loading ? "Fetching accounts..." : "No client accounts registered."}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                recentClients.map((client) => (
+                  <tr key={client._id} className="hover:bg-slate-900/40 transition">
+                    <td className="px-5 py-3.5 font-medium text-slate-200">
+                      {client.fullname || "N/A"}
+                    </td>
+                    <td className="px-5 py-3.5 font-mono text-indigo-400">
+                      {client.email}
+                    </td>
+                    <td className="px-5 py-3.5 font-mono text-slate-400 text-[11px]">
+                      {client._id}
+                    </td>
+                    <td className="px-5 py-3.5 text-right">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        Registered
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </section>
-    </>
+    </div>
   );
 }
