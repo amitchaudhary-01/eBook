@@ -10,10 +10,9 @@ const Pages_Home = () => {
 useEffect(() => {
   let isMounted = true;
 
-  API.get('/books?trending=true')
+  API.get('/book?trending=true')
     .then(res => {
       if (isMounted) {
-        // Fallback to empty array if response data isn't an array
         const data = Array.isArray(res.data) ? res.data : res.data?.books || [];
         setTrendingBooks(data);
       }
@@ -23,7 +22,7 @@ useEffect(() => {
       if (isMounted) setTrendingBooks([]);
     });
 
-  API.get('/books?bestseller=true')
+  API.get('/book?bestseller=true')
     .then(res => {
       if (isMounted) {
         const data = Array.isArray(res.data) ? res.data : res.data?.books || [];

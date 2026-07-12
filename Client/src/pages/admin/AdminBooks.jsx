@@ -22,14 +22,16 @@ const AdminBooks = () => {
     fetchBooks();
   }, []);
 
-  const fetchBooks = async () => {
-    try {
-      const res = await API.get('/book/addbook');
-      setBooks(res.data || []);
-    } catch (err) {
-      console.error("Error fetching books:", err);
-    }
-  };
+ const fetchBooks = async () => {
+  try {
+    const res = await API.get('/book');
+    // Handles both res.data array or res.data.books object
+    const bookList = Array.isArray(res.data) ? res.data : res.data?.books || [];
+    setBooks(bookList);
+  } catch (err) {
+    console.error("Error fetching books:", err);
+  }
+};
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -49,11 +51,12 @@ const AdminBooks = () => {
     data.append('price', formData.price);
     data.append('category', formData.category);
     if (coverImage) {
+      // Must match the field name expected by Multer on backend (upload.single('coverImage'))
       data.append('coverImage', coverImage);
     }
 
     try {
-      await axios.post('http://localhost:3000/api/v1/admin/add-book', data, {
+      await API.post('/book/add-book', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true,
       });
@@ -64,8 +67,10 @@ const AdminBooks = () => {
       setShowForm(false);
       fetchBooks(); // Refresh list
     } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || 'Failed to add book');
+      console.error('Submit Error:', error);
+      // Display specific backend error message returned by Express/Multer
+      const serverMessage = error.response?.data?.error || error.response?.data?.message || 'Failed to add book';
+      toast.error(serverMessage);
     } finally {
       setLoading(false);
     }
@@ -147,10 +152,11 @@ const AdminBooks = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-600 mb-1">Cover Image</label>
+              <label className="block text-xs font-bold uppercase text-gray-600 mb-1">Cover Image / File</label>
               <input
                 type="file"
-                accept="image/*"
+                // UPDATED: Accepts Images, Videos, and PDF files
+                accept="image/*,video/*,application/pdf"
                 onChange={handleFileChange}
                 className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
               />
@@ -183,7 +189,7 @@ const AdminBooks = () => {
             </thead>
             <tbody>
               {books.map((book) => (
-                <tr key={book._id} className="border-b">
+                <tr key={book._id || book.id} className="border-b">
                   <td className="p-3 font-medium text-gray-800">{book.title}</td>
                   <td className="p-3">{book.author}</td>
                   <td className="p-3">{book.category}</td>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import BookCard from '../components/Ebooks/BookCard';
 import { useLocation } from 'react-router-dom';
+import API from '../services/axios'; // 1. Added API Import
 
 const Pages_Book = () => {
   const location = useLocation();
@@ -9,13 +10,17 @@ const Pages_Book = () => {
   const [allBooks, setAllBooks] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
 
+  // 2. Updated useEffect block using central API instance and proper null-checking
   useEffect(() => {
-    // Fetches your entire digital library catalog from your MERN backend
-    fetch(`http://localhost:3000/api/books?search=${searchQuery}`)
-      .then(res => res.json())
-      .then(data => setAllBooks(data))
+    // Avoid appending literal "null"
+    const url = searchQuery && searchQuery !== 'null' 
+      ? `/book?search=${encodeURIComponent(searchQuery)}` 
+      : '/book';
+
+    API.get(url)
+      .then(res => setAllBooks(res.data || []))
       .catch(err => console.error("Error loading library catalog:", err));
-  }, []);
+  }, [searchQuery]);
 
   const categories = ['All', 'Business & Money', 'Self-Help & Growth', 'Technology & Future', 'Health & Fitness'];
 
@@ -84,4 +89,3 @@ const Pages_Book = () => {
 };
 
 export default Pages_Book;
-

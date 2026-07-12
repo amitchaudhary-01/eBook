@@ -1,24 +1,25 @@
 import mongoose from 'mongoose';
 
 const book_Schema = new mongoose.Schema({
-  title:{ 
-    type: String,
-    required: true },
-
+  title: { 
+    type: String, 
+    required: true 
+  },
   author: { 
     type: String, 
-    required: true },
-
+    required: true 
+  },
   price: { 
     type: Number, 
-    required: true },
-
+    required: true 
+  },
   category: { 
     type: String, 
-    required: true },
-
+    required: true 
+  },
   coverImage: { 
-    type: String }, // Stores image path or filename
+    type: String 
+  } // Stores image path or filename
 }, { timestamps: true });
 
 export default mongoose.model('Book', book_Schema);

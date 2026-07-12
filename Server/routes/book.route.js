@@ -1,9 +1,12 @@
-import newbook_controller from "../controller/newbook_controller.js"
-import express from 'express'
-import { upload } from "../middleware/multer.js"
+import express from 'express';
+import { upload } from '../middleware/multer.js';
+// Updated filename here:
+import newbook_controller, { getBooks } from '../controller/newbook_controller.js'; 
 
-const router = express.Router()
+const router = express.Router();
 
-router.post('/addbook', upload.single('coverImage',newbook_controller))
+router.post('/add-book', upload.single('coverImage'), newbook_controller);
 
-export default router
+router.get('/', getBooks);
+
+export default router;
