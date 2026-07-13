@@ -55,6 +55,7 @@ app.get('/', (req, res) => {
   res.send('API is running and connected to DB!')
 })
 
+app.use('/uploads', express.static('uploads'))
 app.use('/api/v1/client', clientRoutes)
 app.use('/api/v1/book', bookrouter)
 

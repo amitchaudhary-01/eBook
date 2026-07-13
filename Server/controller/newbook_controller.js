@@ -4,11 +4,13 @@ import Book from '../schema/book_schema.js';
 const newbook_controller = async (req, res) => {
   try {
     const { title, author, price, category } = req.body;
-    const coverImage = req.file ? req.file.filename : '';
 
     if (!title || !author || !price || !category) {
       return res.status(400).json({ message: "New Book Data Missing" });
     }
+
+    // Get the filename if an image was uploaded
+    const coverImage = req.file ? req.file.filename : '';
 
     const newBook = new Book({ title, author, price, category, coverImage });
     await newBook.save();
@@ -19,14 +21,14 @@ const newbook_controller = async (req, res) => {
   }
 };
 
-// GET: Fetch all books with filtering support
+// GET: Fetch all books
 export const getBooks = async (req, res) => {
   try {
     const books = await Book.find({});
     return res.status(200).json(books);
   } catch (error) {
-    return res.status(500).json({ message: 'Failed to fetch books' });
+    return res.status(500).json({ message: 'Failed to fetch books', error: error.message });
   }
 };
 
-export default newbook_controller
+export default newbook_controller;

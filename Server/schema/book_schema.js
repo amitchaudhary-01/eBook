@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const book_Schema = new mongoose.Schema({
+const bookSchema = new mongoose.Schema({
   title: { 
     type: String, 
     required: true 
@@ -19,7 +19,7 @@ const book_Schema = new mongoose.Schema({
   },
   coverImage: { 
     type: String 
-  } // Stores image path or filename
+  } // Stores image filename
 }, { timestamps: true });
 
-export default mongoose.model('Book', book_Schema);
+export default mongoose.model('Book', bookSchema);
