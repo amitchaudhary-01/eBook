@@ -8,6 +8,7 @@ import connectDB from './config/db.js'
 import clientRoutes from './routes/client.route.js'
 import bookrouter from './routes/book.route.js'
 import cookieParser from 'cookie-parser'
+import newsletterRouter from './routes/newsletter.route.js'
 
 // Load environment variables from .env file
 dotenv.config()
@@ -58,6 +59,7 @@ app.get('/', (req, res) => {
 app.use('/uploads', express.static('uploads'))
 app.use('/api/v1/client', clientRoutes)
 app.use('/api/v1/book', bookrouter)
+app.use("/api/v1/newsletter", newsletterRouter);
 
 // Dynamic PORT assignment for Render
 const PORT = process.env.PORT || 3000
