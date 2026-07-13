@@ -20,6 +20,9 @@ import AdminBooks from './pages/admin/AdminBooks';
 import AdminUsers from './pages/admin/AdminUsers';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
+import AdminOrderSale from './pages/admin/AdminOrderSale';
+import AdminSystemSetting from './pages/admin/AdminSystemSetting';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
@@ -63,6 +66,9 @@ export default function App() {
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="books" element={<AdminBooks />} />
               <Route path="users" element={<AdminUsers />} />
+              <Route path='analytics' element={<AdminAnalytics/>}/>
+              <Route path='order&sale' element={<AdminOrderSale/>}/>
+              <Route path='setting' element={<AdminSystemSetting/>}/>
             </Route>
           </Route>
 

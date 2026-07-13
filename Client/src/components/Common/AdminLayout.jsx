@@ -19,7 +19,7 @@ const AdminSidebar = () => {
   const navItems = [
     { path: "/admin/dashboard", label: "Dashboard", icon: FaHouse },
     { path: "/admin/books", label: "Catalog & Books", icon: FaBook },
-    { path: "/admin/orders", label: "Orders & Sales", icon: FaCartShopping },
+    { path: "/admin/order&sale", label: "Orders & Sales", icon: FaCartShopping },
     { path: "/admin/users", label: "User Management", icon: FaUsers },
     { path: "/admin/analytics", label: "Analytics", icon: FaChartLine },
   ];
@@ -60,12 +60,12 @@ const AdminSidebar = () => {
       </div>
 
       <div className="pt-6 border-t border-slate-800/80 mt-6 lg:mt-0 space-y-2">
-        <button className="w-full flex items-center justify-between text-slate-400 hover:text-slate-200 text-xs font-medium p-2 rounded-lg hover:bg-slate-800/40">
-          <span className="flex items-center gap-2">
-            <FaGear className="text-slate-500" /> System Settings
-          </span>
-          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-        </button>
+        <Link to="/admin/setting" className="w-full flex items-center justify-between text-slate-400 hover:text-slate-200 text-xs font-medium p-2 rounded-lg hover:bg-slate-800/40 transition">
+            <span className="flex items-center gap-2">
+              <FaGear className="text-slate-500" /> System Settings
+            </span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </Link>
 
         <Link
           to="/"
