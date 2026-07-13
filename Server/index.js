@@ -16,10 +16,16 @@ dotenv.config()
 const app = express()
 const server = http.createServer(app)
 
+// Allowed origins for CORS (local dev + deployed frontend)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ebook-3xuy.onrender.com"
+]
+
 // Initialize Socket.io
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -35,13 +41,13 @@ io.on('connection', (socket) => {
 // Connect to MongoDB
 connectDB()
 
-// Body parser middleware
+// Body parser & Cookie middleware
 app.use(express.json())
 app.use(cookieParser())
 
-///////connecting client through cors
+// Express CORS Configuration
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: allowedOrigins,
   credentials: true
 }))
 
@@ -50,11 +56,11 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/v1/client', clientRoutes)
-
-////////new book add///
 app.use('/api/v1/book', bookrouter)
 
-///////start server///
-server.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000')
+// Dynamic PORT assignment for Render
+const PORT = process.env.PORT || 3000
+
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`)
 })
