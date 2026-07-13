@@ -7,17 +7,12 @@ const Create = async (req, res) => {
     const { fullname, email, password } = req.body;
 
     if (!fullname || !email || !password) {
-      return res.status(400).json({
-        message: "Data Missing",
-      });
+      return res.status(400).json({ message: "Data Missing" });
     }
 
     const exist = await Client.findOne({ email });
-
     if (exist) {
-      return res.status(400).json({
-        message: "Email Already Exist",
-      });
+      return res.status(400).json({ message: "Email Already Exist" });
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -28,7 +23,7 @@ const Create = async (req, res) => {
       password: hash,
     });
 
-    // 📡 REAL-TIME SOCKET EMIT
+    // 📡 REAL-TIME SOCKET EMIT: CREATE
     const io = req.app.get("io");
     if (io) {
       io.emit("new_client_registered", {
@@ -45,15 +40,11 @@ const Create = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      message: "Server Error",
-    });
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 
 export default Create;
-
-// --- Sign-in, Logout, Me, GetClient remain the same below ---
 
 export const signIn = async (req, res) => {
   try {
@@ -88,6 +79,17 @@ export const signIn = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
+    // 📡 REAL-TIME SOCKET EMIT: SIGN IN
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("client_logged_in", {
+        _id: clientExist._id,
+        fullname: clientExist.fullname,
+        email: clientExist.email,
+        role: userRole,
+      });
+    }
+
     const successMessage =
       userRole === "admin"
         ? "Admin Logged In Successfully"
@@ -105,30 +107,20 @@ export const signIn = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-
-    return res.status(500).json({
-      message: "Server Error",
-    });
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 
 export const logout = async (req, res) => {
   try {
-    res.clearCookie("client", {
-      httpOnly: true,
-    });
-
+    res.clearCookie("client", { httpOnly: true });
     return res.status(200).json({
       success: true,
       message: "Logged out successfully",
     });
   } catch (error) {
     console.log(error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Server Error",
-    });
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -141,11 +133,7 @@ export const me = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Server Error",
-    });
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -159,9 +147,42 @@ export const GetClient = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      success: false,
-      message: "Server Error",
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+export const deleteClient = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedClient = await Client.findByIdAndDelete(id);
+
+    if (!deletedClient) {
+      return res.status(404).json({
+        success: false,
+        message: "Client not found",
+      });
+    }
+
+    // 📡 REAL-TIME SOCKET EMIT: DELETE
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("client_deleted", {
+        _id: deletedClient._id,
+        fullname: deletedClient.fullname,
+        email: deletedClient.email,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Client deleted successfully",
+      data: {
+        _id: deletedClient._id,
+        email: deletedClient.email,
+      },
     });
+  } catch (error) {
+    console.error("Delete Client Error:", error);
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
