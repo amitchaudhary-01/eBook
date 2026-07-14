@@ -10,6 +10,7 @@ import API from "../../services/axios";
 
 export default function AdminDashboard() {
   const [clientCount, setClientCount] = useState(0);
+  const [bookCount, setBookCount] = useState(0);
   const [recentClients, setRecentClients] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,13 +18,24 @@ export default function AdminDashboard() {
     const fetchDashboardTelemetry = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await API.get("/client/getclients", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const headers = { Authorization: token ? `Bearer ${token}` : "" };
 
-        const clients = res.data.data || [];
+        // Fetch clients and books in parallel
+        const [clientsRes, booksRes] = await Promise.all([
+          API.get("/client/getclients", { headers }),
+          API.get("/book")
+        ]);
+
+        // Process Client Data
+        const clients = clientsRes.data?.data || [];
         setClientCount(clients.length);
         setRecentClients(clients.slice(-5).reverse());
+
+        // Process Book Data
+        const booksData = booksRes.data;
+        const books = Array.isArray(booksData) ? booksData : booksData?.books || [];
+        setBookCount(books.length);
+
       } catch (err) {
         console.error("Dashboard data load error:", err);
       } finally {
@@ -61,6 +73,7 @@ export default function AdminDashboard() {
 
       {/* METRICS CARDS */}
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {/* REGISTERED CLIENTS CARD */}
         <div className="bg-[#121824] border border-slate-800/90 rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium text-slate-400">
@@ -83,6 +96,7 @@ export default function AdminDashboard() {
           </p>
         </div>
 
+        {/* CATALOG ITEMS (BOOKS) CARD */}
         <div className="bg-[#121824] border border-slate-800/90 rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium text-slate-400">
@@ -94,15 +108,18 @@ export default function AdminDashboard() {
           </div>
           <div className="flex items-baseline justify-between">
             <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              --
+              {loading ? "..." : bookCount}
             </h2>
-            <span className="text-[11px] text-slate-500">Inventory Status</span>
+            <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              In Stock
+            </span>
           </div>
           <p className="mt-4 pt-3 border-t border-slate-800/60 text-[11px] text-slate-500">
-            Syncing catalog collection
+            Total books listed in database
           </p>
         </div>
 
+        {/* ORDERS PROCESSED CARD */}
         <div className="bg-[#121824] border border-slate-800/90 rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium text-slate-400">
@@ -123,6 +140,7 @@ export default function AdminDashboard() {
           </p>
         </div>
 
+        {/* TOTAL REVENUE CARD */}
         <div className="bg-[#121824] border border-slate-800/90 rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium text-slate-400">
