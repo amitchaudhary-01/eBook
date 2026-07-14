@@ -29,6 +29,7 @@ const AdminBooks = () => {
       setBooks(bookList);
     } catch (err) {
       console.error("Error fetching books:", err);
+      toast.error("Failed to load books. Check console for details.");
     }
   };
 
