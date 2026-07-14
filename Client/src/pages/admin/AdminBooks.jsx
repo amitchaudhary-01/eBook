@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import API from '../../services/axios';
 
@@ -22,16 +21,16 @@ const AdminBooks = () => {
     fetchBooks();
   }, []);
 
- const fetchBooks = async () => {
-  try {
-    const res = await API.get('/book/add-book');
-    // Handles both res.data array or res.data.books object
-    const bookList = Array.isArray(res.data) ? res.data : res.data?.books || [];
-    setBooks(bookList);
-  } catch (err) {
-    console.error("Error fetching books:", err);
-  }
-};
+  const fetchBooks = async () => {
+    try {
+      // ✅ Corrected endpoint from '/book/book' to '/book'
+      const res = await API.get('/book');
+      const bookList = Array.isArray(res.data) ? res.data : res.data?.books || [];
+      setBooks(bookList);
+    } catch (err) {
+      console.error("Error fetching books:", err);
+    }
+  };
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -45,19 +44,23 @@ const AdminBooks = () => {
     e.preventDefault();
     setLoading(true);
 
+    const token = localStorage.getItem('token');
+
     const data = new FormData();
     data.append('title', formData.title);
     data.append('author', formData.author);
     data.append('price', formData.price);
     data.append('category', formData.category);
     if (coverImage) {
-      // Must match the field name expected by Multer on backend (upload.single('coverImage'))
       data.append('coverImage', coverImage);
     }
 
     try {
       await API.post('/book/add-book', data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
         withCredentials: true,
       });
 
@@ -65,10 +68,9 @@ const AdminBooks = () => {
       setFormData({ title: '', author: '', price: '', category: '' });
       setCoverImage(null);
       setShowForm(false);
-      fetchBooks(); // Refresh list
+      fetchBooks();
     } catch (error) {
       console.error('Submit Error:', error);
-      // Display specific backend error message returned by Express/Multer
       const serverMessage = error.response?.data?.error || error.response?.data?.message || 'Failed to add book';
       toast.error(serverMessage);
     } finally {
@@ -155,7 +157,6 @@ const AdminBooks = () => {
               <label className="block text-xs font-bold uppercase text-gray-600 mb-1">Cover Image / File</label>
               <input
                 type="file"
-                // UPDATED: Accepts Images, Videos, and PDF files
                 accept="image/*,video/*,application/pdf"
                 onChange={handleFileChange}
                 className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
