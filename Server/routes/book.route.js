@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Middleware wrapper to gracefully capture image validation errors
 const handleCoverUpload = (req, res, next) => {
-  uploadImage.single('coverImage')(req, res, (err) => {
+  upload.single('coverImage')(req, res, (err) => {
     if (err) {
       return res.status(400).json({ message: err.message });
     }

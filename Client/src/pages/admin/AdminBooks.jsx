@@ -24,7 +24,7 @@ const AdminBooks = () => {
 
  const fetchBooks = async () => {
   try {
-    const res = await API.get('/book');
+    const res = await API.get('/book/add-book');
     // Handles both res.data array or res.data.books object
     const bookList = Array.isArray(res.data) ? res.data : res.data?.books || [];
     setBooks(bookList);

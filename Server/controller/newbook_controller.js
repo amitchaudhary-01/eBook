@@ -9,10 +9,10 @@ const newbook_controller = async (req, res) => {
       return res.status(400).json({ message: "New Book Data Missing" });
     }
 
-    // Get the filename if an image was uploaded
     const coverImage = req.file ? req.file.filename : '';
+    const fileType = req.file ? req.file.mimetype : '';
 
-    const newBook = new Book({ title, author, price, category, coverImage });
+    const newBook = new Book({ title, author, price, category, coverImage, fileType });
     await newBook.save();
 
     return res.status(201).json({ message: 'Book added successfully!', book: newBook });

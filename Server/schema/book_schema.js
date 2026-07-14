@@ -19,7 +19,10 @@ const bookSchema = new mongoose.Schema({
   },
   coverImage: { 
     type: String 
-  } // Stores image filename
+  },
+  fileType: { 
+    type: String 
+  }
 }, { timestamps: true });
 
 export default mongoose.model('Book', bookSchema);
