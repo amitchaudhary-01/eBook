@@ -1,8 +1,27 @@
-import axios from "axios";
+// import axios from "axios";
+
+// const API = axios.create({
+//   baseURL: import.meta.env.VITE_PORT, // or VITE_API_URL
+//   withCredentials: true,
+// });
+
+// export default API;
+
+
+// services/axios.js
+import axios from 'axios';
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_PORT, // or VITE_API_URL
+  baseURL: import.meta.env.VITE_PORT, // adjust your base URL
   withCredentials: true,
+});
+
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export default API;

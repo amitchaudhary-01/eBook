@@ -1,10 +1,10 @@
 import express from 'express';
 import { upload } from '../middleware/multer.js';
-import newbook_controller, { getBooks } from '../controller/newbook_controller.js'; 
+// Import deleteBook alongside getBooks
+import newbook_controller, { deleteBook, getBooks } from '../controller/newbook_controller.js'; 
 
 const router = express.Router();
 
-// Middleware wrapper to gracefully capture image validation errors
 const handleCoverUpload = (req, res, next) => {
   upload.single('coverImage')(req, res, (err) => {
     if (err) {
@@ -16,5 +16,8 @@ const handleCoverUpload = (req, res, next) => {
 
 router.post('/add-book', handleCoverUpload, newbook_controller);
 router.get('/', getBooks);
+
+// Use deleteBook here instead of deleteClient
+router.delete('/delete/:id', deleteBook);
 
 export default router;
