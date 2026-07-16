@@ -116,7 +116,7 @@ const Footer = () => {
           <h4 className="text-white font-bold mb-4 uppercase text-[10px] tracking-wider">Contact Us</h4>
           <ul className="space-y-2.5 opacity-80">
             <li>
-              <span role="img" aria-label="phone">📞</span> +977 9800000000
+              <span role="img" aria-label="phone">📞</span> +977 9821005569
             </li>
             <li>
               <span role="img" aria-label="email">📧</span> eBook@gmail.com
