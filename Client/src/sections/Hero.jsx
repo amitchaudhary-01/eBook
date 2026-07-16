@@ -6,12 +6,12 @@ export default function Navbar() {
       {/* Micro Info Bar */}
       <div className="bg-slate-50 text-gray-500 text-xs px-8 md:px-24 py-2 flex flex-wrap justify-between items-center border-b border-gray-100">
         <div className="flex gap-6">
-          <span>📧 BookNook@gmail.com</span>
-          <span>📞 +1 (234) 567 890</span>
+          <span>📧 eBook@gmail.com</span>
+          <span>📞 +977 (9821005569) </span>
         </div>
         <div>
           <span>Sun - Fri : 9am - 8pm</span>
-          <span className="ml-6">📍 20 Albert St, Melbourne, Australia</span>
+          <span className="ml-6">📍 Butwal, Rupandehi, Nepal</span>
         </div>
       </div>
 
